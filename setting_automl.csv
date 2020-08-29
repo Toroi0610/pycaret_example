@@ -1,0 +1,8 @@
+index, property0
+path_table_file, input_data.csv
+mode, classification
+module, compare
+target, y
+models, all
+preprocessing, 
+path_output, output.csv
