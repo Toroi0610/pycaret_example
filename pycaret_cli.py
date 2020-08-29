@@ -1,16 +1,20 @@
-import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-from pycaret.regression import *
-from pycaret.datasets import get_data
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import mean_squared_error
 
-boston_data = get_data('boston')
-train, test = train_test_split(boston_data)
+setting = dict(pd.read_csv("setting_automl.csv", index_col=0))
+
+if setting["mode"] == "classification":
+    from pycaret.classification import *
+elif setting["mode"] == "regression":
+    from pycaret.regression import *
+
+train = pd.read_csv(setting["path_train_file"])
+test  = pd.read_csv(setting["path_test_file"])
+
+preprocessing = dict(setting["preprocessing"])
 
 print("SETUP EXPERIMENTS")
-exp_0 = setup(data=train, target="medv", html=False, silent=True)
+exp_0 = setup(data=train, target=setting["target"], 
+              html=False, silent=True, **preprocessing)
 print("Finished !!")
 
 # compare all baseline models and select top 5
