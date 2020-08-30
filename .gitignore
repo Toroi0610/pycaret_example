@@ -16,5 +16,5 @@ catboost_info/
 Experiment0/
 old/
 
-.train.csv
-.test.csv
+/train.csv
+/test.csv
