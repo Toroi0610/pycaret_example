@@ -72,6 +72,7 @@ def main():
             make_archive(pcl.exp_name, 'zip', root_dir=pcl.exp_dir)
             st.markdown(get_binary_file_downloader_html(f'{pcl.exp_name}.zip', 'ZIP'), unsafe_allow_html=True)
             rmtree(pcl.exp_name+".zip")
+            rmtree(pcl.exp_name)
 
 
 if __name__ == "__main__":
