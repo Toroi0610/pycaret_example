@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 from shutil import copy2
 import pandas as pd
 
@@ -23,20 +24,31 @@ class Pycaret_CLI:
         # self.preprocessing = dict(setting.loc["preprocessing", "property0"])
         self.target = setting.loc["target", "property0"]
         self.module = setting.loc["module", "property0"]
-        self.model_list = setting.loc["models"].values.tolist()
+        self.model_list = setting.loc["models"].dropna().values.tolist()
         self.metric = setting.loc["metric", "property0"]
         self.exp_name = setting.loc["exp_name", "property0"]
+        self.ignore_features = setting.loc["ignore_features"].dropna().values
 
-        os.makedirs(self.exp_name, exist_ok=True)
-        os.makedirs(self.exp_name+"/model", exist_ok=True)
-        os.makedirs(self.exp_name+"/data", exist_ok=True)
-        os.makedirs(self.exp_name+"/predict", exist_ok=True)
-        os.makedirs(self.exp_name+"/setting", exist_ok=True)
-        copy2(path_setting_file, self.exp_name+"/setting")
-        copy2(self.path_train_file, self.exp_name+"/data")
-        copy2(self.path_test_file, self.exp_name+"/data")
+        exp_dir = Path(self.exp_name).absolute()
+        exp_dir.mkdir(exist_ok=True)
+        model_dir = (exp_dir / "model").absolute()
+        model_dir.mkdir(exist_ok=True)
+        data_dir = (exp_dir / "data").absolute()
+        data_dir.mkdir(exist_ok=True)
+        setting_dir = (exp_dir / "setting").absolute()
+        setting_dir.mkdir(exist_ok=True)
+        predict_dir = (exp_dir / "predcit").absolute()
+        predict_dir.mkdir(exist_ok=True)
 
+        copy2(path_setting_file, setting_dir)
+        copy2(self.path_train_file, data_dir)
+        copy2(self.path_test_file, data_dir)
 
+        self.exp_dir = exp_dir
+        self.model_dir = model_dir
+        self.data_dir = data_dir
+        self.setting_dir = setting_dir
+        self.predict_dir = predict_dir
 
 
     def load_data(self):
@@ -55,8 +67,13 @@ class Pycaret_CLI:
     def setup_automl_env(self, train):
 
         print("SETUP EXPERIMENTS")
+        os.chdir(self.exp_dir)
         exp_0 = setup(data=train, target=self.target,
-                      html=False, silent=True)
+                      html=False, silent=True,
+                      ignore_features=self.ignore_features,
+                      log_experiment=True,
+                      log_plots=True, log_profile=True,
+                      experiment_name=self.exp_name)
         print("Finished !!")
 
         return exp_0
@@ -71,16 +88,17 @@ class Pycaret_CLI:
                 best_model = compare_models(include=self.model_list, sort=self.metric)
         elif self.module == "tune":
             if self.model_list == ["all"]:
+                print("Tune model")
                 best_model = compare_models(sort=self.metric)
             else:
                 best_model = tune_model(best_model, sort=self.metric)
 
-        save_model(best_model, self.exp_name+"/model/best_model")
+        save_model(best_model, str((self.model_dir / "best_model").absolute()))
 
         return best_model
 
 
     def prediction(self, model, test):
         result = predict_model(model, test)
-        result.to_csv(self.exp_name+"/predict/result.csv", index=False)
+        result.to_csv((self.predict_dir / "result.csv").absolute(), index=False)
         return result

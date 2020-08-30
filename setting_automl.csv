@@ -1,10 +1,10 @@
-index,property0
+index,property0,property1,property2,property3
 exp_name,Experiment0
 path_training_file,train.csv
 path_test_file,test.csv
 mode,classification
 module,compare
-target,Survived
+target,y
 metric,Accuracy
-models,all
-preprocessing,
+models,lr
+ignore_features,
