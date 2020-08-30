@@ -1,9 +1,10 @@
-index, property0
-path_training_file, train_data.csv
-path_test_file, test_data.csv
-mode, classification
-module, compare
-target, y
-models, all
-preprocessing, 
-path_output, output.csv
+index,property0
+exp_name,Experiment0
+path_training_file,train.csv
+path_test_file,test.csv
+mode,classification
+module,compare
+target,Survived
+metric,Accuracy
+models,all
+preprocessing,

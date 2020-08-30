@@ -12,3 +12,6 @@ instance/
 *.log
 
 catboost_info/
+
+Experiment0/
+old/
